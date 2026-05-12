@@ -1,32 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import select
 from typing import Annotated, AsyncIterator
 import httpx
 import json
 
 from ..database import get_db
-from ..models import DocumentChunk
+from ..models import KnowledgeBase
 from ..schemas import QueryRequest
 from ..config import get_settings
 
 router = APIRouter(prefix="/api", tags=["query"])
-
-CHARS_PER_TOKEN = 4  # rough estimate: 1 token ≈ 4 chars
-
-
-def _build_wiki(chunks: list[str], max_tokens: int) -> str:
-    """Concatenate chunks in order, dropping oldest when over token budget."""
-    budget = max_tokens * CHARS_PER_TOKEN
-    selected: list[str] = []
-    total = 0
-    for chunk in chunks:
-        if total + len(chunk) > budget:
-            break
-        selected.append(chunk)
-        total += len(chunk)
-    return "\n\n".join(selected)
 
 
 async def _stream_openrouter(wiki: str, question: str) -> AsyncIterator[str]:
@@ -94,19 +78,15 @@ async def query_documents(
     if not body.question.strip():
         raise HTTPException(status_code=400, detail="question must not be empty")
 
-    settings = get_settings()
-
-    chunks = db.execute(
-        select(DocumentChunk.chunk_text).order_by(DocumentChunk.id)
-    ).scalars().all()
-
-    if not chunks:
-        raise HTTPException(status_code=400, detail="No documents uploaded yet")
-
-    wiki = _build_wiki(list(chunks), settings.max_context_tokens)
+    kb = db.get(KnowledgeBase, 1)
+    if kb is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Knowledge base not built yet. Upload documents and click 'Update Knowledge Base' first.",
+        )
 
     return StreamingResponse(
-        _stream_openrouter(wiki, body.question),
+        _stream_openrouter(kb.wiki_text, body.question),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

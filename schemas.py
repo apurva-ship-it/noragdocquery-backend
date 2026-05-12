@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 class DocumentSummary(BaseModel):
@@ -35,3 +36,12 @@ class ContextResponse(BaseModel):
     content: str
     total_characters: int
     document_count: int
+
+
+class KnowledgeBaseStatus(BaseModel):
+    has_kb: bool
+    is_stale: bool
+    updated_at: Optional[datetime]
+    total_characters: int
+    document_count: int
+    document_names: list[str]

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from .database import engine, Base
-from .routers import upload, documents, query
+from .routers import upload, documents, query, knowledge_base
 
 
 @asynccontextmanager
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(upload.router)
 app.include_router(documents.router)
+app.include_router(knowledge_base.router)
 app.include_router(query.router)
 
 
