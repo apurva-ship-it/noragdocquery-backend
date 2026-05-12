@@ -10,6 +10,7 @@ from .routers.auth import router as auth_router
 from .routers.generate_prompts import router as generate_prompts_router
 from .routers.run_prompt import router as run_prompt_router
 from .routers.documents import router as documents_router, _engine as _doc_engine, Base as _DocumentBase
+from .routers.query import router as query_router
 from .middleware.rate_limit import RateLimitMiddleware
 from .config import Settings
 
@@ -68,3 +69,4 @@ app.include_router(auth_router)
 app.include_router(generate_prompts_router)
 app.include_router(run_prompt_router)
 app.include_router(documents_router)
+app.include_router(query_router)
