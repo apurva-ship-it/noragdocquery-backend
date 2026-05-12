@@ -22,15 +22,13 @@ def upgrade() -> None:
     op.create_table(
         "users",
         sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
-        sa.Column("email", sa.String(255), nullable=False),
+        sa.Column("email", sa.String(255), nullable=False, unique=True),
         sa.Column("password_hash", sa.String(128), nullable=False),
         sa.Column("created_at", sa.DateTime, nullable=False, server_default=sa.func.now()),
     )
-    op.create_unique_constraint("uq_users_email", "users", ["email"])
+    op.create_index("ix_users_email", "users", ["email"], unique=True)
 
-# Downgrade: drop users table
 
 def downgrade() -> None:
-    op.drop_constraint("uq_users_email", "users", type_="unique")
+    op.drop_index("ix_users_email", table_name="users")
     op.drop_table("users")
-"""

@@ -1,4 +1,6 @@
 '''FastAPI application factory with CORS and optional HTTPS enforcement middleware.'''
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.responses import Response, JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -7,10 +9,19 @@ from .routers.files import router as files_router
 from .routers.auth import router as auth_router
 from .routers.generate_prompts import router as generate_prompts_router
 from .routers.run_prompt import router as run_prompt_router
+from .routers.documents import router as documents_router, _engine as _doc_engine, Base as _DocumentBase
 from .middleware.rate_limit import RateLimitMiddleware
 from .config import Settings
 
-app = FastAPI(title="File Management API")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with _doc_engine.begin() as conn:
+        await conn.run_sync(_DocumentBase.metadata.create_all)
+    yield
+
+
+app = FastAPI(title="File Management API", lifespan=lifespan)
 settings = Settings()
 
 @app.exception_handler(RequestValidationError)
@@ -56,3 +67,4 @@ app.include_router(files_router)
 app.include_router(auth_router)
 app.include_router(generate_prompts_router)
 app.include_router(run_prompt_router)
+app.include_router(documents_router)

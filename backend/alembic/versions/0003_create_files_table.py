@@ -74,5 +74,3 @@ def downgrade() -> None:
     """Drop the files table and the associated index."""
     op.drop_index("ix_files_user_id", table_name="files")
     op.drop_table("files")
-
-"""
