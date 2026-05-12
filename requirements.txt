@@ -11,3 +11,6 @@ httpx
 pytest-asyncio
 ruff
 mypy
+PyMuPDF
+python-docx
+openpyxl

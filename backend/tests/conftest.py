@@ -9,7 +9,7 @@ from datetime import datetime
 def reset_state():
     """Reset all in-memory state between tests."""
     auth_module._users.clear()
-    auth_module._revoked_refresh_jti.clear()
+    auth_module._revoked_refresh_token_hashes.clear()
     _attempts_store.clear()
     files_db.clear()
     files_db[1] = {"name": "file1.txt", "deleted_at": None}

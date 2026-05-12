@@ -7,7 +7,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, validator
 
-from ..dependencies import get_client_ip, get_remaining_attempts, Settings
+from ..dependencies import get_client_ip, get_remaining_attempts
+from ..config import Settings
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
