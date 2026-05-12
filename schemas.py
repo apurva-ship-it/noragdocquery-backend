@@ -23,3 +23,15 @@ class DocumentChunkSchema(BaseModel):
     uploaded_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class DocumentPreview(BaseModel):
+    document_name: str
+    content: str
+    chunk_count: int
+
+
+class ContextResponse(BaseModel):
+    content: str
+    total_characters: int
+    document_count: int
